@@ -1,0 +1,25 @@
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  border-radius: 20px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.status-pill--sm {
+  font-size: 0.72rem;
+  padding: 2px 9px;
+}
+
+.status-pill--md {
+  font-size: 0.8rem;
+  padding: 4px 12px;
+}
+
+.status-pill--cold       { color: var(--status-cold);       background: var(--status-cold-bg); }
+.status-pill--warm       { color: var(--status-warm);       background: var(--status-warm-bg); }
+.status-pill--hot        { color: var(--status-hot);        background: var(--status-hot-bg); }
+.status-pill--nurturing  { color: var(--status-nurturing);  background: var(--status-nurturing-bg); }
+.status-pill--post-close { color: var(--status-post-close); background: var(--status-post-close-bg); }
+.status-pill--other      { color: var(--status-other);      background: var(--status-other-bg); }
