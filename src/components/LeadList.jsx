@@ -16,10 +16,24 @@ function formatDate(ts) {
   return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-export default function LeadList({ leads, loading, error, selectedId, onSelect, onRetry }) {
+function ListHeader({ onAddLead }) {
+  return (
+    <div className="list-header">
+      <button className="add-lead-btn" onClick={onAddLead}>
+        <svg viewBox="0 0 20 20" fill="none" width="14" height="14">
+          <path d="M10 4v12M4 10h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+        Add Lead
+      </button>
+    </div>
+  )
+}
+
+export default function LeadList({ leads, loading, error, selectedId, onSelect, onRetry, onAddLead }) {
   if (loading) {
     return (
       <div className="lead-list">
+        <ListHeader onAddLead={onAddLead} />
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="lead-card skeleton">
             <div className="skeleton-avatar" />
@@ -35,27 +49,34 @@ export default function LeadList({ leads, loading, error, selectedId, onSelect, 
 
   if (error) {
     return (
-      <div className="lead-list-empty">
-        <p className="empty-icon">⚠️</p>
-        <p className="empty-title">Could not load leads</p>
-        <p className="empty-sub">{error}</p>
-        <button className="retry-btn" onClick={onRetry}>Retry</button>
+      <div className="lead-list">
+        <ListHeader onAddLead={onAddLead} />
+        <div className="lead-list-empty">
+          <p className="empty-icon">⚠️</p>
+          <p className="empty-title">Could not load leads</p>
+          <p className="empty-sub">{error}</p>
+          <button className="retry-btn" onClick={onRetry}>Retry</button>
+        </div>
       </div>
     )
   }
 
-  if (leads.length === 0) {
+  if (leads.filter(l => !l.__isDraft).length === 0 && leads.length === 0) {
     return (
-      <div className="lead-list-empty">
-        <p className="empty-icon">🔍</p>
-        <p className="empty-title">No leads found</p>
-        <p className="empty-sub">Try adjusting the filter or search term.</p>
+      <div className="lead-list">
+        <ListHeader onAddLead={onAddLead} />
+        <div className="lead-list-empty">
+          <p className="empty-icon">🔍</p>
+          <p className="empty-title">No leads found</p>
+          <p className="empty-sub">Try adjusting the filter or search term.</p>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="lead-list">
+      <ListHeader onAddLead={onAddLead} />
       {leads.map(lead => {
         if (lead.__isDraft) {
           return (

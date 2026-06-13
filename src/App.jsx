@@ -79,12 +79,6 @@ export default function App() {
             <span className="lead-count">{filtered.length} lead{filtered.length !== 1 ? 's' : ''}</span>
           </div>
           <div className="topbar-right">
-            <button className="add-lead-btn" onClick={() => setShowAddModal(true)}>
-              <svg viewBox="0 0 20 20" fill="none" width="15" height="15">
-                <path d="M10 4v12M4 10h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-              Add Lead
-            </button>
             <div className="search-wrap">
               <svg className="search-icon" viewBox="0 0 20 20" fill="none">
                 <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" strokeWidth="1.5"/>
@@ -109,6 +103,7 @@ export default function App() {
             selectedId={selectedLead?.id}
             onSelect={lead => { if (!lead.__isDraft) setSelectedLead(lead) }}
             onRetry={fetchLeads}
+            onAddLead={() => setShowAddModal(true)}
           />
           {selectedLead && (
             <LeadDetail lead={selectedLead} onClose={() => setSelectedLead(null)} />
