@@ -11,6 +11,7 @@ const EMPTY_FORM = {
   lead_name: '',
   lead_spouse_name: '',
   lead_children_info: '',
+  lead_email: '',
   lead_budget: '',
   lead_status: 'cold',
   lead_notes: '',
@@ -64,6 +65,7 @@ export default function AddLeadModal({ onClose, onSaved, onDraftChange }) {
         lead_name:          clean(raw.lead_name),
         lead_spouse_name:   clean(raw.lead_spouse_name),
         lead_children_info: clean(raw.lead_children_info),
+        lead_email:         clean(raw.lead_email),
         lead_budget:        raw.lead_budget != null && raw.lead_budget !== 'null'
                               ? String(raw.lead_budget) : '',
         lead_status:        raw.lead_status && raw.lead_status !== 'null'
@@ -90,6 +92,7 @@ export default function AddLeadModal({ onClose, onSaved, onDraftChange }) {
         lead_name:          form.lead_name          || null,
         lead_spouse_name:   form.lead_spouse_name   || null,
         lead_children_info: form.lead_children_info || null,
+        lead_email:         form.lead_email         || null,
         lead_budget:        form.lead_budget ? parseFloat(form.lead_budget) : null,
         lead_status:        form.lead_status        || 'other',
         lead_notes:         form.lead_notes         || null,
@@ -188,6 +191,12 @@ export default function AddLeadModal({ onClose, onSaved, onDraftChange }) {
                   <label className="form-label">Children</label>
                   <input className="form-input" value={form.lead_children_info}
                     onChange={e => setField('lead_children_info', e.target.value)} placeholder="e.g. 2 kids, ages 4 and 7" />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Email</label>
+                  <input className="form-input" type="email" value={form.lead_email}
+                    onChange={e => setField('lead_email', e.target.value)} placeholder="e.g. jane@gmail.com" />
                 </div>
 
                 <div className="form-field">

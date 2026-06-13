@@ -49,6 +49,7 @@ export default function LeadDetail({ lead, onClose }) {
             <Field label="Lead Name" value={lead.lead_name} />
             <Field label="Spouse / Partner" value={lead.lead_spouse_name} />
             <Field label="Children" value={lead.lead_children_info} />
+            <Field label="Email" value={lead.lead_email} />
           </div>
         </section>
 
