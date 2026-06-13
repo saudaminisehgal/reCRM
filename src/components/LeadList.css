@@ -57,6 +57,30 @@
   gap: 5px;
 }
 
+.draft-card {
+  border-style: dashed;
+  border-color: var(--color-accent);
+  background: var(--color-accent-light);
+  cursor: default;
+  pointer-events: none;
+}
+
+.draft-avatar {
+  background: linear-gradient(135deg, #93c5fd 0%, #6366f1 100%);
+  opacity: 0.7;
+}
+
+.draft-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-accent);
+  background: #dbeafe;
+  border-radius: 20px;
+  padding: 1px 8px;
+}
+
 .lead-top-row {
   display: flex;
   align-items: center;

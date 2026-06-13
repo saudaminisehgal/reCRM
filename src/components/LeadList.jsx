@@ -56,38 +56,54 @@ export default function LeadList({ leads, loading, error, selectedId, onSelect, 
 
   return (
     <div className="lead-list">
-      {leads.map(lead => (
-        <button
-          key={lead.id}
-          className={`lead-card ${selectedId === lead.id ? 'selected' : ''}`}
-          onClick={() => onSelect(lead)}
-        >
-          <div className="lead-avatar" aria-hidden="true">
-            {getInitials(lead.lead_name)}
-          </div>
-          <div className="lead-info">
-            <div className="lead-top-row">
-              <span className="lead-name">{lead.lead_name || 'Unnamed Lead'}</span>
-              <StatusPill status={lead.lead_status} />
+      {leads.map(lead => {
+        if (lead.__isDraft) {
+          return (
+            <div key="__draft__" className="lead-card draft-card">
+              <div className="lead-avatar draft-avatar">{getInitials(lead.lead_name)}</div>
+              <div className="lead-info">
+                <div className="lead-top-row">
+                  <span className="lead-name">{lead.lead_name}</span>
+                  <span className="draft-badge">Draft</span>
+                </div>
+                <div className="lead-meta"><span className="meta-chip">Unsaved</span></div>
+              </div>
             </div>
-            <div className="lead-meta">
-              {lead.lead_spouse_name && (
-                <span className="meta-chip">+ {lead.lead_spouse_name}</span>
-              )}
-              {lead.lead_budget && (
-                <span className="meta-chip budget">{formatBudget(lead.lead_budget)}</span>
-              )}
-              <span className="meta-date">{formatDate(lead.created_at)}</span>
+          )
+        }
+        return (
+          <button
+            key={lead.id}
+            className={`lead-card ${selectedId === lead.id ? 'selected' : ''}`}
+            onClick={() => onSelect(lead)}
+          >
+            <div className="lead-avatar" aria-hidden="true">
+              {getInitials(lead.lead_name)}
             </div>
-            {lead.lead_ai_summary && (
-              <p className="lead-summary">{lead.lead_ai_summary}</p>
-            )}
-          </div>
-          <svg className="lead-chevron" viewBox="0 0 20 20" fill="none">
-            <path d="M7 5l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
-      ))}
+            <div className="lead-info">
+              <div className="lead-top-row">
+                <span className="lead-name">{lead.lead_name || 'Unnamed Lead'}</span>
+                <StatusPill status={lead.lead_status} />
+              </div>
+              <div className="lead-meta">
+                {lead.lead_spouse_name && (
+                  <span className="meta-chip">+ {lead.lead_spouse_name}</span>
+                )}
+                {lead.lead_budget && (
+                  <span className="meta-chip budget">{formatBudget(lead.lead_budget)}</span>
+                )}
+                <span className="meta-date">{formatDate(lead.created_at)}</span>
+              </div>
+              {lead.lead_ai_summary && (
+                <p className="lead-summary">{lead.lead_ai_summary}</p>
+              )}
+            </div>
+            <svg className="lead-chevron" viewBox="0 0 20 20" fill="none">
+              <path d="M7 5l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        )
+      })}
     </div>
   )
 }

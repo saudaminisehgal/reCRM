@@ -3,9 +3,11 @@ import { supabase } from './supabaseClient'
 import Sidebar from './components/Sidebar'
 import LeadList from './components/LeadList'
 import LeadDetail from './components/LeadDetail'
+import AddLeadModal from './components/AddLeadModal'
 import './App.css'
 
 const ALL_STATUSES = ['cold', 'warm', 'hot', 'nurturing', 'post-close', 'other']
+const DRAFT_ID = '__draft__'
 
 export default function App() {
   const [leads, setLeads] = useState([])
@@ -14,10 +16,10 @@ export default function App() {
   const [selectedLead, setSelectedLead] = useState(null)
   const [activeFilter, setActiveFilter] = useState('all')
   const [search, setSearch] = useState('')
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [draftName, setDraftName] = useState(null)
 
-  useEffect(() => {
-    fetchLeads()
-  }, [])
+  useEffect(() => { fetchLeads() }, [])
 
   async function fetchLeads() {
     setLoading(true)
@@ -26,13 +28,21 @@ export default function App() {
       .from('leads')
       .select('*')
       .order('created_at', { ascending: false })
-
-    if (error) {
-      setError(error.message)
-    } else {
-      setLeads(data || [])
-    }
+    if (error) setError(error.message)
+    else setLeads(data || [])
     setLoading(false)
+  }
+
+  function handleSaved(newLead) {
+    setLeads(prev => [newLead, ...prev])
+    setDraftName(null)
+    setShowAddModal(false)
+    setSelectedLead(newLead)
+  }
+
+  function handleCloseModal() {
+    setShowAddModal(false)
+    setDraftName(null)
   }
 
   const statusCounts = ALL_STATUSES.reduce((acc, s) => {
@@ -42,12 +52,15 @@ export default function App() {
 
   const filtered = leads.filter(lead => {
     const matchesStatus = activeFilter === 'all' || lead.lead_status === activeFilter
-    const matchesSearch =
-      !search ||
+    const matchesSearch = !search ||
       lead.lead_name?.toLowerCase().includes(search.toLowerCase()) ||
       lead.lead_spouse_name?.toLowerCase().includes(search.toLowerCase())
     return matchesStatus && matchesSearch
   })
+
+  const listLeads = draftName !== null
+    ? [{ id: DRAFT_ID, lead_name: draftName || 'New Lead', lead_status: null, __isDraft: true }, ...filtered]
+    : filtered
 
   return (
     <div className="app-shell">
@@ -65,38 +78,51 @@ export default function App() {
             </h1>
             <span className="lead-count">{filtered.length} lead{filtered.length !== 1 ? 's' : ''}</span>
           </div>
-          <div className="search-wrap">
-            <svg className="search-icon" viewBox="0 0 20 20" fill="none">
-              <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" strokeWidth="1.5"/>
-              <path d="M13 13l3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-            <input
-              className="search-input"
-              type="text"
-              placeholder="Search leads…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
+          <div className="topbar-right">
+            <button className="add-lead-btn" onClick={() => setShowAddModal(true)}>
+              <svg viewBox="0 0 20 20" fill="none" width="15" height="15">
+                <path d="M10 4v12M4 10h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+              Add Lead
+            </button>
+            <div className="search-wrap">
+              <svg className="search-icon" viewBox="0 0 20 20" fill="none">
+                <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" strokeWidth="1.5"/>
+                <path d="M13 13l3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+              <input
+                className="search-input"
+                type="text"
+                placeholder="Search leads…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
           </div>
         </header>
 
         <div className="content-area">
           <LeadList
-            leads={filtered}
+            leads={listLeads}
             loading={loading}
             error={error}
             selectedId={selectedLead?.id}
-            onSelect={setSelectedLead}
+            onSelect={lead => { if (!lead.__isDraft) setSelectedLead(lead) }}
             onRetry={fetchLeads}
           />
           {selectedLead && (
-            <LeadDetail
-              lead={selectedLead}
-              onClose={() => setSelectedLead(null)}
-            />
+            <LeadDetail lead={selectedLead} onClose={() => setSelectedLead(null)} />
           )}
         </div>
       </main>
+
+      {showAddModal && (
+        <AddLeadModal
+          onClose={handleCloseModal}
+          onSaved={handleSaved}
+          onDraftChange={setDraftName}
+        />
+      )}
     </div>
   )
 }
