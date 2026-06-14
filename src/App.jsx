@@ -46,6 +46,18 @@ export default function App() {
     setDraftName(null)
   }
 
+  async function handleEmailUpdate(email) {
+    const { error } = await supabase
+      .from('leads')
+      .update({ lead_email: email })
+      .eq('id', selectedLead.id)
+    if (error) return error.message
+    const updated = { ...selectedLead, lead_email: email }
+    setSelectedLead(updated)
+    setLeads(prev => prev.map(l => l.id === updated.id ? updated : l))
+    return null
+  }
+
   const statusCounts = ALL_STATUSES.reduce((acc, s) => {
     acc[s] = leads.filter(l => l.lead_status === s).length
     return acc
@@ -116,7 +128,11 @@ export default function App() {
             onAddLead={() => setShowAddModal(true)}
           />
           {selectedLead && (
-            <LeadDetail lead={selectedLead} onClose={() => setSelectedLead(null)} />
+            <LeadDetail
+              lead={selectedLead}
+              onClose={() => setSelectedLead(null)}
+              onEmailUpdated={handleEmailUpdate}
+            />
           )}
         </div>
       </main>
