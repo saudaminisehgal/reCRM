@@ -224,7 +224,9 @@ export default function AddLeadModal({ onClose, onSaved, onDraftChange }) {
                   {transcribing ? (
                     <span className="spinner spinner--dark" />
                   ) : recording ? (
-                    <span className="mic-pulse" />
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                      <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    </svg>
                   ) : (
                     <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
                       <rect x="9" y="2" width="6" height="12" rx="3" fill="currentColor"/>
