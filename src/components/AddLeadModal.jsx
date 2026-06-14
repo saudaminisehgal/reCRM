@@ -168,7 +168,9 @@ export default function AddLeadModal({ onClose, onSaved, onDraftChange }) {
       })
       if (!res.ok) throw new Error(`Transcription failed (${res.status})`)
       const data = await res.json()
-      const result = Array.isArray(data) ? data[0] : data
+      const raw = Array.isArray(data) ? data[0] : data
+      // n8n Respond to Webhook can wrap the body in an "output" string — parse it if so
+      const result = typeof raw.output === 'string' ? JSON.parse(raw.output) : raw
       if (result.valid === true && result.text) {
         setFreeText(prev => prev ? prev + ' ' + result.text : result.text)
       } else if (result.valid === false) {
