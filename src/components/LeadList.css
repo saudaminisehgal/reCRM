@@ -166,6 +166,20 @@
   margin-top: 2px;
 }
 
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .lead-list {
+    max-width: 100%;
+    border-right: none;
+    padding: 0 12px 16px;
+  }
+
+  .lead-list-empty {
+    max-width: 100%;
+    border-right: none;
+  }
+}
+
 /* empty / error state */
 .lead-list-empty {
   flex: 1;

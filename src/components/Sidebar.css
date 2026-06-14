@@ -135,3 +135,50 @@
   font-size: 0.72rem;
   color: #374151;
 }
+
+/* ── Mobile: horizontal filter strip ── */
+@media (max-width: 640px) {
+  .sidebar {
+    width: 100%;
+    min-height: unset;
+    height: auto;
+    position: static;
+    flex-direction: row;
+    align-items: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    gap: 6px;
+    flex-shrink: 0;
+    scrollbar-width: none;
+  }
+  .sidebar::-webkit-scrollbar { display: none; }
+
+  .sidebar-brand {
+    padding: 10px 4px 10px 0;
+    border-bottom: none;
+    flex-shrink: 0;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    flex: none;
+    padding: 8px 0;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .nav-section-label { display: none; }
+
+  .nav-item {
+    flex-direction: row;
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-radius: 20px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-footer { display: none; }
+}

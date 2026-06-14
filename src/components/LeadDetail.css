@@ -68,6 +68,22 @@
   color: var(--color-text-primary);
 }
 
+/* Back button — mobile only (shown via media query below) */
+.back-btn {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.back-btn:hover { text-decoration: underline; }
+
 .detail-body {
   padding: 24px 28px;
   display: flex;
@@ -169,4 +185,25 @@
   font-size: 0.875rem;
   color: var(--color-text-muted);
   font-style: italic;
+}
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .back-btn { display: flex; }
+  .close-btn { display: none; }
+
+  .detail-header {
+    padding: 14px 16px;
+    gap: 10px;
+  }
+
+  .detail-body {
+    padding: 16px;
+    gap: 20px;
+  }
+
+  .fields-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
 }

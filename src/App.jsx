@@ -95,7 +95,7 @@ export default function App() {
           </div>
         </header>
 
-        <div className="content-area">
+        <div className={`content-area${selectedLead ? ' detail-open' : ''}`}>
           <LeadList
             leads={listLeads}
             loading={loading}

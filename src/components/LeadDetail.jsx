@@ -30,6 +30,12 @@ export default function LeadDetail({ lead, onClose }) {
   return (
     <div className="lead-detail">
       <div className="detail-header">
+        <button className="back-btn" onClick={onClose} aria-label="Back to leads list">
+          <svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+            <path d="M12 4l-6 6 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Back
+        </button>
         <div className="detail-avatar">{getInitials(lead.lead_name)}</div>
         <div className="detail-title-block">
           <h2 className="detail-name">{lead.lead_name || 'Unnamed Lead'}</h2>
