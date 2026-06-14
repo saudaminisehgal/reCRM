@@ -38,6 +38,7 @@ export default function AddLeadModal({ onClose, onSaved, onDraftChange }) {
   const textareaRef = useRef(null)
   const mediaRecorderRef = useRef(null)
   const chunksRef = useRef([])
+  const recordingStartRef = useRef(null)
 
   useEffect(() => {
     onDraftChange(form ? (form.lead_name || '') : null)
@@ -127,11 +128,18 @@ export default function AddLeadModal({ onClose, onSaved, onDraftChange }) {
       recorder.ondataavailable = e => { if (e.data.size > 0) chunksRef.current.push(e.data) }
       recorder.onstop = async () => {
         stream.getTracks().forEach(t => t.stop())
+        const duration = Date.now() - recordingStartRef.current
+        if (duration < 1500) {
+          setTranscribing(false)
+          setVoiceError('Recording too short — please speak for at least a second.')
+          return
+        }
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
         await transcribeAudio(blob)
       }
       mediaRecorderRef.current = recorder
       recorder.start()
+      recordingStartRef.current = Date.now()
       setRecording(true)
     } catch (err) {
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
@@ -160,9 +168,14 @@ export default function AddLeadModal({ onClose, onSaved, onDraftChange }) {
       })
       if (!res.ok) throw new Error(`Transcription failed (${res.status})`)
       const data = await res.json()
-      const transcript = Array.isArray(data) ? data[0]?.text : data?.text
-      if (!transcript) throw new Error('Empty transcript')
-      setFreeText(prev => prev ? prev + ' ' + transcript : transcript)
+      const result = Array.isArray(data) ? data[0] : data
+      if (result.valid === true && result.text) {
+        setFreeText(prev => prev ? prev + ' ' + result.text : result.text)
+      } else if (result.valid === false) {
+        setVoiceError(result.error || 'Transcription failed, please try again or type manually.')
+      } else {
+        throw new Error('Unexpected response format')
+      }
     } catch {
       setVoiceError('Transcription failed, please try again or type manually.')
     } finally {
