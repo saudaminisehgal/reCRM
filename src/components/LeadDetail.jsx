@@ -32,7 +32,15 @@ function EmailField({ value, onSave }) {
   const [draft, setDraft] = useState(value || '')
   const [error, setError] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [copied, setCopied] = useState(false)
   const inputRef = useRef(null)
+
+  function copyToClipboard() {
+    navigator.clipboard.writeText(value).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    })
+  }
 
   useEffect(() => {
     if (editing) inputRef.current?.focus()
@@ -97,6 +105,20 @@ function EmailField({ value, onSave }) {
       ) : (
         <div className="email-display">
           <p className="field-value">{value || '—'}</p>
+          {value && (
+            <button className="edit-email-btn" onClick={copyToClipboard} aria-label="Copy email">
+              {copied ? (
+                <svg viewBox="0 0 20 20" fill="none" width="13" height="13">
+                  <path d="M4 10l4 4 8-8" stroke="#16a34a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              ) : (
+                <svg viewBox="0 0 20 20" fill="none" width="13" height="13">
+                  <rect x="7" y="7" width="9" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
+                  <path d="M13 7V5a1.5 1.5 0 00-1.5-1.5h-6A1.5 1.5 0 004 5v6A1.5 1.5 0 005.5 12.5H7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                </svg>
+              )}
+            </button>
+          )}
           <button className="edit-email-btn" onClick={startEdit} aria-label="Edit email">
             <svg viewBox="0 0 20 20" fill="none" width="13" height="13">
               <path d="M13.586 3.586a2 2 0 112.828 2.828L8 14.828 4 16l1.172-4L13.586 3.586z"
