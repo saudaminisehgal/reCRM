@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar'
 import LeadList from './components/LeadList'
 import LeadDetail from './components/LeadDetail'
 import AddLeadModal from './components/AddLeadModal'
+import MobileFilterBar from './components/MobileFilterBar'
 import './App.css'
 
 const ALL_STATUSES = ['cold', 'warm', 'hot', 'nurturing', 'post-close', 'other']
@@ -94,6 +95,15 @@ export default function App() {
             </div>
           </div>
         </header>
+
+        {!selectedLead && (
+          <MobileFilterBar
+            activeFilter={activeFilter}
+            onFilterChange={f => { setActiveFilter(f); setSelectedLead(null) }}
+            statusCounts={statusCounts}
+            totalCount={leads.length}
+          />
+        )}
 
         <div className={`content-area${selectedLead ? ' detail-open' : ''}`}>
           <LeadList
