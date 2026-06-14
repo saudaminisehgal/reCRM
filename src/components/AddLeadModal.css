@@ -101,6 +101,81 @@
 }
 .quick-textarea:focus { border-color: var(--color-accent); background: #fff; }
 
+/* Textarea + mic wrapper */
+.textarea-wrap {
+  position: relative;
+}
+
+.textarea-wrap .quick-textarea {
+  padding-right: 48px;
+}
+
+.mic-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.mic-btn:hover:not(:disabled) {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  border-color: var(--color-accent);
+}
+
+.mic-btn--recording {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.mic-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Pulsing red dot inside mic button when recording */
+.mic-pulse {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: mic-pulse 1s ease-in-out infinite;
+}
+
+@keyframes mic-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.35); opacity: 0.6; }
+}
+
+/* Voice status line */
+.voice-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.voice-status.recording { color: #ef4444; }
+.voice-status.transcribing { color: var(--color-text-secondary); }
+
+.voice-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: mic-pulse 1s ease-in-out infinite;
+}
+
 /* Draft form */
 .draft-form { display: flex; flex-direction: column; gap: 16px; }
 

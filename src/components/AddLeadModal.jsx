@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import StatusPill from './StatusPill'
 import './AddLeadModal.css'
 
-const WEBHOOK_EXTRACT = 'https://saudamini9.app.n8n.cloud/webhook/e5fed7f2-cf80-412d-b828-a9d589a576fe'
-const WEBHOOK_SAVE    = 'https://saudamini9.app.n8n.cloud/webhook/211fe521-2b65-4282-bb68-cfc62bfe0aad'
+const WEBHOOK_EXTRACT    = 'https://saudamini9.app.n8n.cloud/webhook/e5fed7f2-cf80-412d-b828-a9d589a576fe'
+const WEBHOOK_SAVE       = 'https://saudamini9.app.n8n.cloud/webhook/211fe521-2b65-4282-bb68-cfc62bfe0aad'
+const WEBHOOK_TRANSCRIBE = 'https://saudamini9.app.n8n.cloud/webhook/28a72db4-7fea-41db-ac91-a043897e9005'
 
 const STATUSES = ['hot', 'warm', 'cold', 'nurturing', 'post-close', 'other']
 
@@ -31,7 +32,12 @@ export default function AddLeadModal({ onClose, onSaved, onDraftChange }) {
   const [form, setForm] = useState(null)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState(null)
+  const [recording, setRecording] = useState(false)
+  const [transcribing, setTranscribing] = useState(false)
+  const [voiceError, setVoiceError] = useState(null)
   const textareaRef = useRef(null)
+  const mediaRecorderRef = useRef(null)
+  const chunksRef = useRef([])
 
   useEffect(() => {
     onDraftChange(form ? (form.lead_name || '') : null)
@@ -112,6 +118,58 @@ export default function AddLeadModal({ onClose, onSaved, onDraftChange }) {
     }
   }
 
+  async function startRecording() {
+    setVoiceError(null)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
+      chunksRef.current = []
+      recorder.ondataavailable = e => { if (e.data.size > 0) chunksRef.current.push(e.data) }
+      recorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop())
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
+        await transcribeAudio(blob)
+      }
+      mediaRecorderRef.current = recorder
+      recorder.start()
+      setRecording(true)
+    } catch (err) {
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setVoiceError('Microphone access is required for voice input.')
+      } else {
+        setVoiceError('Could not start recording. Please try again.')
+      }
+    }
+  }
+
+  function stopRecording() {
+    if (mediaRecorderRef.current && recording) {
+      mediaRecorderRef.current.stop()
+      setRecording(false)
+      setTranscribing(true)
+    }
+  }
+
+  async function transcribeAudio(blob) {
+    try {
+      const formData = new FormData()
+      formData.append('data', blob, 'recording.webm')
+      const res = await fetch(WEBHOOK_TRANSCRIBE, {
+        method: 'POST',
+        body: formData,
+      })
+      if (!res.ok) throw new Error(`Transcription failed (${res.status})`)
+      const data = await res.json()
+      const transcript = Array.isArray(data) ? data[0]?.text : data?.text
+      if (!transcript) throw new Error('Empty transcript')
+      setFreeText(prev => prev ? prev + ' ' + transcript : transcript)
+    } catch {
+      setVoiceError('Transcription failed, please try again or type manually.')
+    } finally {
+      setTranscribing(false)
+    }
+  }
+
   function handleBackdropClick(e) {
     if (e.target === e.currentTarget) onClose()
   }
@@ -146,19 +204,54 @@ export default function AddLeadModal({ onClose, onSaved, onDraftChange }) {
               <p className="quick-hint">
                 Describe the lead in plain English — name, budget, status, anything you know.
               </p>
-              <textarea
-                ref={textareaRef}
-                className="quick-textarea"
-                placeholder='e.g. "Just met Sarah at Buckhead open house, budget $750K, hot lead, husband Tom, two kids"'
-                value={freeText}
-                onChange={e => setFreeText(e.target.value)}
-                rows={5}
-              />
+              <div className="textarea-wrap">
+                <textarea
+                  ref={textareaRef}
+                  className="quick-textarea"
+                  placeholder='e.g. "Just met Sarah at Buckhead open house, budget $750K, hot lead, husband Tom, two kids"'
+                  value={freeText}
+                  onChange={e => setFreeText(e.target.value)}
+                  rows={5}
+                  disabled={recording || transcribing}
+                />
+                <button
+                  className={`mic-btn ${recording ? 'mic-btn--recording' : ''}`}
+                  onClick={recording ? stopRecording : startRecording}
+                  disabled={transcribing}
+                  aria-label={recording ? 'Stop recording' : 'Start voice recording'}
+                  title={recording ? 'Stop recording' : 'Record voice note'}
+                >
+                  {transcribing ? (
+                    <span className="spinner spinner--dark" />
+                  ) : recording ? (
+                    <span className="mic-pulse" />
+                  ) : (
+                    <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
+                      <rect x="9" y="2" width="6" height="12" rx="3" fill="currentColor"/>
+                      <path d="M5 10a7 7 0 0014 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                      <line x1="12" y1="19" x2="12" y2="22" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                      <line x1="9" y1="22" x2="15" y2="22" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                    </svg>
+                  )}
+                </button>
+              </div>
+
+              {recording && (
+                <div className="voice-status recording">
+                  <span className="voice-dot" /> Recording…
+                </div>
+              )}
+              {transcribing && (
+                <div className="voice-status transcribing">
+                  <span className="spinner spinner--dark" /> Transcribing…
+                </div>
+              )}
+              {voiceError && <p className="form-error">{voiceError}</p>}
               {extractError && <p className="form-error">{extractError}</p>}
               <button
                 className="btn-primary"
                 onClick={handleExtract}
-                disabled={extracting || !freeText.trim()}
+                disabled={extracting || transcribing || recording || !freeText.trim()}
               >
                 {extracting ? <><span className="spinner" /> Extracting…</> : 'Extract Fields →'}
               </button>
