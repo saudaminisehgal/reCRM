@@ -108,7 +108,7 @@ export default function UpdateLeadModal({ lead, onClose, onSaved }) {
     setSaving(true)
     setSaveError(null)
     try {
-      const payload = {
+      const payload = [{
         id:                 lead.id,
         intent:             'update',
         notes_mode:         'append',
@@ -119,7 +119,7 @@ export default function UpdateLeadModal({ lead, onClose, onSaved }) {
         lead_budget:        form.lead_budget ? parseFloat(form.lead_budget) : null,
         lead_status:        form.lead_status        || 'other',
         lead_notes:         form.lead_notes         || null,
-      }
+      }]
       const res = await fetch(WEBHOOK_SAVE, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
