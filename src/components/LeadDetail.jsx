@@ -237,7 +237,8 @@ function SpeakButton({ summary }) {
         body: JSON.stringify({ text: summary }),
       })
       if (!res.ok) throw new Error(`Request failed (${res.status})`)
-      const blob = await res.blob()
+      const raw = await res.blob()
+      const blob = new Blob([raw], { type: 'audio/mp3' })
       const url = URL.createObjectURL(blob)
       blobUrlRef.current = url
       const audio = new Audio(url)
