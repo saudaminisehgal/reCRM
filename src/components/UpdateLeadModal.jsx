@@ -111,6 +111,7 @@ export default function UpdateLeadModal({ lead, onClose, onSaved }) {
       const payload = {
         id:                 lead.id,
         intent:             'update',
+        notes_mode:         'append',
         lead_name:          form.lead_name          || null,
         lead_spouse_name:   form.lead_spouse_name   || null,
         lead_children_info: form.lead_children_info || null,

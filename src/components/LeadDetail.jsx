@@ -131,7 +131,77 @@ function EmailField({ value, onSave }) {
   )
 }
 
-export default function LeadDetail({ lead, onClose, onEmailUpdated, onUpdate }) {
+function NotesField({ value, onSave }) {
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState(value || '')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState(null)
+  const textareaRef = useRef(null)
+
+  useEffect(() => {
+    if (editing) textareaRef.current?.focus()
+  }, [editing])
+
+  function startEdit() {
+    setDraft(value || '')
+    setError(null)
+    setEditing(true)
+  }
+
+  function cancel() {
+    setEditing(false)
+    setError(null)
+  }
+
+  async function save() {
+    setSaving(true)
+    setError(null)
+    const err = await onSave(draft.trim() || null)
+    setSaving(false)
+    if (err) setError(err)
+    else setEditing(false)
+  }
+
+  return (
+    <div className="notes-block">
+      {editing ? (
+        <>
+          <textarea
+            ref={textareaRef}
+            className="notes-edit-textarea"
+            value={draft}
+            onChange={e => setDraft(e.target.value)}
+            rows={5}
+            disabled={saving}
+            placeholder="Add notes…"
+          />
+          {error && <p className="notes-edit-error">{error}</p>}
+          <div className="notes-edit-actions">
+            <button className="email-btn email-btn--ghost" onClick={cancel} disabled={saving}>Cancel</button>
+            <button className="email-btn email-btn--primary" onClick={save} disabled={saving}>
+              {saving ? 'Saving…' : 'Save'}
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className="notes-display">
+          {value
+            ? <p className="notes-text">{value}</p>
+            : <p className="notes-empty">No notes yet.</p>
+          }
+          <button className="edit-email-btn notes-edit-btn" onClick={startEdit} aria-label="Edit notes">
+            <svg viewBox="0 0 20 20" fill="none" width="13" height="13">
+              <path d="M13.586 3.586a2 2 0 112.828 2.828L8 14.828 4 16l1.172-4L13.586 3.586z"
+                stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function LeadDetail({ lead, onClose, onEmailUpdated, onNotesUpdated, onUpdate }) {
   return (
     <div className="lead-detail">
       <div className="detail-header">
@@ -192,12 +262,7 @@ export default function LeadDetail({ lead, onClose, onEmailUpdated, onUpdate }) 
 
         <section className="detail-section">
           <h3 className="section-heading">Notes</h3>
-          <div className="notes-block">
-            {lead.lead_notes
-              ? <p className="notes-text">{lead.lead_notes}</p>
-              : <p className="notes-empty">No notes yet.</p>
-            }
-          </div>
+          <NotesField value={lead.lead_notes} onSave={onNotesUpdated} />
         </section>
 
         <section className="detail-section">

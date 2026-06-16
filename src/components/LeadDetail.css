@@ -204,6 +204,45 @@
   font-style: italic;
 }
 
+.notes-display {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.notes-display .notes-text,
+.notes-display .notes-empty {
+  flex: 1;
+}
+
+.notes-edit-btn { align-self: flex-start; flex-shrink: 0; }
+
+.notes-edit-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  background: #fff;
+  outline: none;
+  resize: vertical;
+  line-height: 1.7;
+}
+
+.notes-edit-error {
+  font-size: 0.78rem;
+  color: #ef4444;
+  margin-top: 4px;
+}
+
+.notes-edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 /* Email inline edit */
 .email-field { grid-column: 1 / -1; }
 

@@ -54,6 +54,18 @@ export default function App() {
     setLeads(prev => prev.map(l => l.id === updatedLead.id ? updatedLead : l))
   }
 
+  async function handleNotesUpdate(notes) {
+    const { error } = await supabase
+      .from('leads')
+      .update({ lead_notes: notes })
+      .eq('id', selectedLead.id)
+    if (error) return error.message
+    const updated = { ...selectedLead, lead_notes: notes }
+    setSelectedLead(updated)
+    setLeads(prev => prev.map(l => l.id === updated.id ? updated : l))
+    return null
+  }
+
   async function handleEmailUpdate(email) {
     const { error } = await supabase
       .from('leads')
@@ -140,6 +152,7 @@ export default function App() {
               lead={selectedLead}
               onClose={() => setSelectedLead(null)}
               onEmailUpdated={handleEmailUpdate}
+              onNotesUpdated={handleNotesUpdate}
               onUpdate={() => setShowUpdateModal(true)}
             />
           )}
