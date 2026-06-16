@@ -129,6 +129,54 @@
   margin-bottom: 10px;
 }
 
+.speak-wrap {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.speak-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #d97706;
+  background: transparent;
+  color: #b45309;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.speak-btn:disabled { opacity: 0.4; cursor: default; }
+.speak-btn--idle:hover:not(:disabled) { background: #fef3c7; }
+.speak-btn--loading { opacity: 0.7; cursor: default; }
+.speak-btn--playing {
+  background: #b45309;
+  color: #fff;
+  border-color: #b45309;
+}
+.speak-btn--playing:hover { background: #92400e; border-color: #92400e; }
+
+.speak-error {
+  font-size: 0.7rem;
+  color: #ef4444;
+  white-space: nowrap;
+}
+
+.spinner--speak {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border: 2px solid rgba(180, 83, 9, 0.25);
+  border-top-color: #b45309;
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+}
+
 .summary-text {
   font-size: 0.975rem;
   font-weight: 500;
