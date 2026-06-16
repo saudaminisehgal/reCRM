@@ -129,6 +129,29 @@
   margin-bottom: 10px;
 }
 
+.speak-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #d97706;
+  background: transparent;
+  color: #b45309;
+  cursor: pointer;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: background 0.12s, color 0.12s;
+}
+.speak-btn:hover { background: #fef3c7; }
+.speak-btn--playing {
+  background: #b45309;
+  color: #fff;
+  border-color: #b45309;
+}
+.speak-btn--playing:hover { background: #92400e; }
+
 .summary-text {
   font-size: 0.975rem;
   font-weight: 500;
