@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar'
 import LeadList from './components/LeadList'
 import LeadDetail from './components/LeadDetail'
 import AddLeadModal from './components/AddLeadModal'
+import UpdateLeadModal from './components/UpdateLeadModal'
 import MobileFilterBar from './components/MobileFilterBar'
 import './App.css'
 
@@ -18,6 +19,7 @@ export default function App() {
   const [activeFilter, setActiveFilter] = useState('all')
   const [search, setSearch] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showUpdateModal, setShowUpdateModal] = useState(false)
   const [draftName, setDraftName] = useState(null)
 
   useEffect(() => { fetchLeads() }, [])
@@ -44,6 +46,12 @@ export default function App() {
   function handleCloseModal() {
     setShowAddModal(false)
     setDraftName(null)
+  }
+
+  function handleLeadUpdated(updatedLead) {
+    setShowUpdateModal(false)
+    setSelectedLead(updatedLead)
+    setLeads(prev => prev.map(l => l.id === updatedLead.id ? updatedLead : l))
   }
 
   async function handleEmailUpdate(email) {
@@ -132,6 +140,7 @@ export default function App() {
               lead={selectedLead}
               onClose={() => setSelectedLead(null)}
               onEmailUpdated={handleEmailUpdate}
+              onUpdate={() => setShowUpdateModal(true)}
             />
           )}
         </div>
@@ -142,6 +151,14 @@ export default function App() {
           onClose={handleCloseModal}
           onSaved={handleSaved}
           onDraftChange={setDraftName}
+        />
+      )}
+
+      {showUpdateModal && selectedLead && (
+        <UpdateLeadModal
+          lead={selectedLead}
+          onClose={() => setShowUpdateModal(false)}
+          onSaved={handleLeadUpdated}
         />
       )}
     </div>

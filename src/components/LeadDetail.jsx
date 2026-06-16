@@ -131,7 +131,7 @@ function EmailField({ value, onSave }) {
   )
 }
 
-export default function LeadDetail({ lead, onClose, onEmailUpdated }) {
+export default function LeadDetail({ lead, onClose, onEmailUpdated, onUpdate }) {
   return (
     <div className="lead-detail">
       <div className="detail-header">
@@ -146,6 +146,13 @@ export default function LeadDetail({ lead, onClose, onEmailUpdated }) {
           <h2 className="detail-name">{lead.lead_name || 'Unnamed Lead'}</h2>
           <StatusPill status={lead.lead_status} size="md" />
         </div>
+        <button className="update-lead-btn" onClick={onUpdate} aria-label="Update lead">
+          <svg viewBox="0 0 20 20" fill="none" width="13" height="13">
+            <path d="M13.586 3.586a2 2 0 112.828 2.828L8 14.828 4 16l1.172-4L13.586 3.586z"
+              stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Update
+        </button>
         <button className="close-btn" onClick={onClose} aria-label="Close detail panel">
           <svg viewBox="0 0 20 20" fill="none">
             <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
