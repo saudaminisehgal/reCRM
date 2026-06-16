@@ -77,7 +77,7 @@ export default function UpdateLeadModal({ lead, onClose, onSaved }) {
       const res = await fetch(WEBHOOK_EXTRACT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: freeText.trim(), lead_name: lead.lead_name }),
+        body: JSON.stringify({ message: freeText.trim(), intent: 'update', lead_name: lead.lead_name }),
       })
       if (!res.ok) throw new Error(`Webhook returned ${res.status}`)
       const data = await res.json()
