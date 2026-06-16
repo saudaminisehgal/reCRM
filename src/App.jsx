@@ -55,15 +55,33 @@ export default function App() {
   }
 
   async function handleNotesUpdate(notes) {
-    const { error } = await supabase
-      .from('leads')
-      .update({ lead_notes: notes })
-      .eq('id', selectedLead.id)
-    if (error) return error.message
-    const updated = { ...selectedLead, lead_notes: notes }
-    setSelectedLead(updated)
-    setLeads(prev => prev.map(l => l.id === updated.id ? updated : l))
-    return null
+    try {
+      const payload = [{
+        id:                 selectedLead.id,
+        intent:             'update',
+        notes_mode:         'replace',
+        lead_name:          selectedLead.lead_name          || null,
+        lead_spouse_name:   selectedLead.lead_spouse_name   || null,
+        lead_children_info: selectedLead.lead_children_info || null,
+        lead_email:         selectedLead.lead_email         || null,
+        lead_budget:        selectedLead.lead_budget        || null,
+        lead_status:        selectedLead.lead_status        || null,
+        lead_notes:         notes,
+      }]
+      const res = await fetch('https://saudamini9.app.n8n.cloud/webhook/211fe521-2b65-4282-bb68-cfc62bfe0aad', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!res.ok) throw new Error(`Save failed (${res.status})`)
+      const data = await res.json()
+      const updated = Array.isArray(data) ? data[0] : data
+      setSelectedLead(updated)
+      setLeads(prev => prev.map(l => l.id === updated.id ? updated : l))
+      return null
+    } catch (err) {
+      return err.message || 'Failed to save notes.'
+    }
   }
 
   async function handleEmailUpdate(email) {
