@@ -79,9 +79,13 @@ export default function UpdateLeadModal({ lead, onClose, onSaved }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: freeText.trim(), intent: 'update', lead_name: lead.lead_name }),
       })
-      if (!res.ok) throw new Error(`Webhook returned ${res.status}`)
-      const data = await res.json()
+      // n8n may return non-200 for validation errors — read body regardless
+      const data = await res.json().catch(() => ({}))
       const raw = Array.isArray(data) ? data[0] : data
+      // Ignore "no name" errors on update — we always fall back to existing lead name
+      if (raw.error && !raw.error.toLowerCase().includes('name')) {
+        throw new Error(raw.error)
+      }
       // Merge extracted fields over existing lead values — keep existing if nothing extracted
       setQuickForm({
         lead_name:          clean(raw.lead_name)          || clean(lead.lead_name),
