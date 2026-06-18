@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>reCRM — Vision Prototype</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f3f4f6;
+    --surface: #ffffff;
+    --border: #e5e7eb;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --accent-light: #eff6ff;
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-muted: #9ca3af;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --sidebar-bg: #1e1e2e;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text-primary); height: 100vh; overflow: hidden; }
+
+  /* ── Layout ── */
+  .shell { display: flex; height: 100vh; }
+
+  /* ── Sidebar ── */
+  .sidebar { width: 232px; background: var(--sidebar-bg); color: #c9d1e0; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .brand-icon { width: 34px; height: 34px; border-radius: 8px; background: var(--accent); color: #fff; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .brand-name { font-size: 1rem; font-weight: 700; color: #f1f5f9; }
+  .nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .nav-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #4a5568; padding: 0 8px; margin: 12px 0 4px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border-radius: var(--radius-sm); border: none; background: transparent; color: #94a3b8; font-size: 0.875rem; font-weight: 500; text-align: left; cursor: pointer; transition: background 0.12s, color 0.12s; }
+  .nav-item:hover { background: rgba(255,255,255,0.05); color: #e2e8f0; }
+  .nav-item.active { background: rgba(37,99,235,0.2); color: #93c5fd; }
+  .nav-badge { margin-left: auto; font-size: 0.72rem; font-weight: 600; background: rgba(255,255,255,0.08); color: #94a3b8; padding: 1px 7px; border-radius: 20px; }
+  .nav-item.active .nav-badge { background: rgba(37,99,235,0.3); color: #93c5fd; }
+
+  /* ── Main ── */
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 28px; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .topbar-left { display: flex; align-items: baseline; gap: 10px; }
+  .page-title { font-size: 1.25rem; font-weight: 700; }
+  .lead-count { font-size: 0.8rem; color: var(--text-muted); }
+  .search-wrap { position: relative; width: 260px; }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+  .search-input { width: 100%; padding: 8px 12px 8px 34px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.875rem; background: var(--bg); outline: none; }
+  .search-input:focus { border-color: var(--accent); }
+  .content-area { flex: 1; display: flex; overflow: hidden; }
+
+  /* ── Lead List ── */
+  .lead-list { width: 380px; flex-shrink: 0; overflow-y: auto; padding: 0 16px 16px; display: flex; flex-direction: column; gap: 8px; border-right: 1px solid var(--border); }
+  .list-header { display: flex; justify-content: flex-end; padding: 12px 0 4px; position: sticky; top: 0; background: var(--bg); z-index: 5; }
+  .add-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .add-btn:hover { background: var(--accent-hover); }
+  .lead-card { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); cursor: pointer; text-align: left; width: 100%; transition: box-shadow 0.15s, border-color 0.15s; }
+  .lead-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .lead-card.selected { border-color: var(--accent); background: var(--accent-light); box-shadow: 0 0 0 2px rgba(37,99,235,0.15); }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .lead-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+  .lead-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .lead-name-text { font-size: 0.9rem; font-weight: 600; }
+  .lead-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .chip { font-size: 0.72rem; color: var(--text-secondary); background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 1px 8px; }
+  .chip.budget { color: #059669; background: #ecfdf5; border-color: #a7f3d0; font-weight: 600; }
+  .meta-date { font-size: 0.72rem; color: var(--text-muted); margin-left: auto; }
+  .lead-summary-text { font-size: 0.78rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chevron { width: 18px; height: 18px; color: var(--text-muted); flex-shrink: 0; }
+
+  /* Status Pills */
+  .pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+  .pill-hot { background: #fef2f2; color: #dc2626; }
+  .pill-warm { background: #fffbeb; color: #d97706; }
+  .pill-cold { background: #eff6ff; color: #2563eb; }
+  .pill-nurturing { background: #f0fdf4; color: #16a34a; }
+  .pill-other { background: #f9fafb; color: #6b7280; }
+  .pill-post-close { background: #f0fdf4; color: #15803d; }
+
+  /* ── Detail Panel ── */
+  .lead-detail { flex: 1; overflow-y: auto; background: var(--surface); display: flex; flex-direction: column; }
+  .detail-header { display: flex; align-items: center; gap: 14px; padding: 24px 28px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); z-index: 5; }
+  .detail-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; font-size: 1rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .detail-title { flex: 1; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .detail-name { font-size: 1.1rem; font-weight: 700; }
+  .update-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+  .update-btn:hover { background: var(--accent-hover); }
+  .close-btn { width: 32px; height: 32px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent; display: flex; align-items: center; justify-content: center; color: var(--text-muted); cursor: pointer; }
+  .close-btn:hover { background: var(--bg); }
+  .detail-body { padding: 24px 28px; display: flex; flex-direction: column; gap: 24px; }
+  .summary-card { background: #fffbeb; border: 2px solid #f59e0b; border-radius: var(--radius-md); padding: 16px 18px; }
+  .summary-label { display: flex; align-items: center; gap: 6px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #b45309; margin-bottom: 10px; }
+  .summary-text { font-size: 0.9rem; font-weight: 500; color: #1c1917; line-height: 1.65; }
+  .section-heading { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .field { display: flex; flex-direction: column; gap: 3px; }
+  .field.full { grid-column: 1 / -1; }
+  .field-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+  .field-value { font-size: 0.875rem; color: var(--text-primary); line-height: 1.5; }
+  .field-value.empty { color: var(--text-muted); }
+  .notes-block { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; min-height: 60px; font-size: 0.875rem; line-height: 1.7; }
+  .home-pref-block { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: var(--radius-sm); padding: 14px 16px; font-size: 0.875rem; line-height: 1.7; color: #0369a1; }
+
+  /* ── Empty state ── */
+  .empty-detail { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--text-muted); padding: 48px; }
+  .empty-detail h3 { font-size: 0.95rem; font-weight: 600; color: var(--text-secondary); }
+  .empty-detail p { font-size: 0.82rem; text-align: center; }
+
+  /* ── Modal ── */
+  .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; backdrop-filter: blur(2px); }
+  .modal { background: var(--surface); border-radius: var(--radius-lg); box-shadow: 0 24px 64px rgba(0,0,0,0.22); width: 100%; max-width: 580px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 0; }
+  .modal-title { font-size: 1.05rem; font-weight: 700; }
+  .modal-close { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent; display: flex; align-items: center; justify-content: center; color: var(--text-muted); cursor: pointer; font-size: 1rem; }
+  .modal-close:hover { background: var(--bg); }
+  .modal-tabs { display: flex; padding: 16px 24px 0; border-bottom: 1px solid var(--border); }
+  .modal-tab { padding: 8px 16px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); background: transparent; border: none; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; transition: color 0.12s, border-color 0.12s; }
+  .modal-tab:hover { color: var(--text-primary); }
+  .modal-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .modal-body { flex: 1; overflow-y: auto; padding: 20px 24px 24px; }
+  .quick-hint { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px; }
+  .textarea-wrap { position: relative; margin-bottom: 12px; }
+  .quick-textarea { width: 100%; padding: 12px 48px 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.9rem; resize: vertical; outline: none; line-height: 1.6; background: var(--bg); }
+  .quick-textarea:focus { border-color: var(--accent); background: #fff; }
+  .mic-btn { position: absolute; bottom: 10px; right: 10px; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; }
+  .mic-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary { display: inline-flex; align-items: center; gap: 6px; padding: 9px 20px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-ghost { padding: 9px 18px; background: transparent; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; }
+  .btn-ghost:hover { background: var(--bg); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .form-field { display: flex; flex-direction: column; gap: 5px; }
+  .form-field.full { grid-column: 1 / -1; }
+  .form-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); }
+  .form-input { padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.875rem; background: var(--bg); outline: none; width: 100%; }
+  .form-input:focus { border-color: var(--accent); background: #fff; }
+  .form-textarea { padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.875rem; background: var(--bg); outline: none; width: 100%; resize: vertical; line-height: 1.6; }
+  .form-textarea:focus { border-color: var(--accent); background: #fff; }
+  .form-section-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); grid-column: 1 / -1; padding-top: 8px; border-top: 1px solid var(--border); }
+  .status-options { display: flex; flex-wrap: wrap; gap: 8px; }
+  .status-option { background: transparent; border: 2px solid transparent; border-radius: 20px; padding: 2px; cursor: pointer; transition: border-color 0.12s; }
+  .status-option.selected { border-color: var(--accent); }
+  .form-actions { display: flex; justify-content: flex-end; gap: 10px; padding-top: 4px; border-top: 1px solid var(--border); }
+  .back-link { background: none; border: none; font-size: 0.8rem; font-weight: 600; color: var(--accent); padding: 0; cursor: pointer; margin-bottom: 12px; display: inline-block; }
+  .back-link:hover { text-decoration: underline; }
+  .new-badge { display: inline-flex; align-items: center; padding: 1px 6px; background: #dbeafe; color: var(--accent); border-radius: 4px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-left: 4px; vertical-align: middle; }
+
+  /* Extracted highlight */
+  .form-input.extracted { border-color: #86efac; background: #f0fdf4; }
+  .form-textarea.extracted { border-color: #86efac; background: #f0fdf4; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">RE</div>
+      <span class="brand-name">reCRM</span>
+    </div>
+    <nav class="nav">
+      <p class="nav-label">Leads</p>
+      <button class="nav-item active" onclick="filterLeads('all')">
+        <span>👥</span><span>All Leads</span><span class="nav-badge" id="badge-all">4</span>
+      </button>
+      <p class="nav-label">By Status</p>
+      <button class="nav-item" onclick="filterLeads('hot')">🔥 <span style="margin-left:6px">Hot</span><span class="nav-badge" id="badge-hot">2</span></button>
+      <button class="nav-item" onclick="filterLeads('warm')">☀️ <span style="margin-left:6px">Warm</span><span class="nav-badge" id="badge-warm">1</span></button>
+      <button class="nav-item" onclick="filterLeads('cold')">🧊 <span style="margin-left:6px">Cold</span><span class="nav-badge" id="badge-cold">1</span></button>
+      <button class="nav-item" onclick="filterLeads('nurturing')">🌱 <span style="margin-left:6px">Nurturing</span></button>
+      <button class="nav-item" onclick="filterLeads('post-close')">✅ <span style="margin-left:6px">Post-Close</span></button>
+      <button class="nav-item" onclick="filterLeads('other')">📌 <span style="margin-left:6px">Other</span></button>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title" id="page-title">All Leads</h1>
+        <span class="lead-count" id="page-count">4 leads</span>
+      </div>
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 20 20" fill="none" width="16" height="16">
+          <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M13 13l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input class="search-input" type="text" placeholder="Search leads…" oninput="searchLeads(this.value)" />
+      </div>
+    </header>
+
+    <div class="content-area">
+      <!-- Lead List -->
+      <div class="lead-list">
+        <div class="list-header">
+          <button class="add-btn" onclick="openAddModal()">
+            <svg viewBox="0 0 20 20" fill="none" width="14" height="14"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Add Lead
+          </button>
+        </div>
+        <div id="lead-cards"></div>
+      </div>
+
+      <!-- Detail Panel -->
+      <div class="lead-detail" id="detail-panel">
+        <div class="empty-detail">
+          <div style="font-size:2rem">👤</div>
+          <h3>No lead selected</h3>
+          <p>Click a lead from the list to view their details.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Add Lead Modal -->
+<div class="backdrop" id="add-modal" style="display:none" onclick="backdropClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Add New Lead</h2>
+      <button class="modal-close" onclick="closeAddModal()">✕</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="tab-quick" onclick="switchTab('quick')">⚡ Quick Add</button>
+      <button class="modal-tab" id="tab-manual" onclick="switchTab('manual')">📋 Manual Entry</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Quick Add -->
+      <div id="quick-add-view">
+        <p class="quick-hint">Describe the lead in plain English — name, budget, status, home preferences, anything you know.</p>
+        <div class="textarea-wrap">
+          <textarea class="quick-textarea" id="quick-text" rows="5"
+            placeholder='e.g. "Met Sarah at Buckhead open house, budget $750K, hot lead, husband Tom, two kids, wants 4BR with big backyard near top schools, she works in Midtown, Tom works remotely"'></textarea>
+          <button class="mic-btn" title="Voice input">🎙</button>
+        </div>
+        <button class="btn-primary" onclick="extractFields()">Extract Fields →</button>
+      </div>
+
+      <!-- Draft Form (after extract or manual) -->
+      <div id="draft-form-view" style="display:none">
+        <button class="back-link" id="back-link" onclick="backToQuick()">← Back to free text</button>
+        <div class="form-grid" id="form-grid">
+
+          <p class="form-section-title">👤 Contact Information</p>
+
+          <div class="form-field">
+            <label class="form-label">Lead Name *</label>
+            <input class="form-input" id="f-name" placeholder="Full name" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Lead Phone</label>
+            <input class="form-input" id="f-phone" placeholder="+1 (404) 000-0000" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Lead Email</label>
+            <input class="form-input" id="f-email" placeholder="e.g. jane@gmail.com" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Other Emails <span class="new-badge">new</span></label>
+            <input class="form-input" id="f-other-emails" placeholder="e.g. jane.work@co.com, jane2@gmail.com" />
+          </div>
+
+          <p class="form-section-title">👫 Spouse / Partner</p>
+
+          <div class="form-field">
+            <label class="form-label">Spouse Name</label>
+            <input class="form-input" id="f-spouse" placeholder="Partner name" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Spouse Phone <span class="new-badge">new</span></label>
+            <input class="form-input" id="f-spouse-phone" placeholder="+1 (404) 000-0000" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Spouse Email <span class="new-badge">new</span></label>
+            <input class="form-input" id="f-spouse-email" placeholder="e.g. tom@gmail.com" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Children</label>
+            <input class="form-input" id="f-children" placeholder="e.g. 2 kids, ages 4 and 7" />
+          </div>
+
+          <p class="form-section-title">💼 Work</p>
+
+          <div class="form-field">
+            <label class="form-label">Work Location <span class="new-badge">new</span></label>
+            <input class="form-input" id="f-work" placeholder="e.g. Midtown Atlanta" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Spouse Work Location <span class="new-badge">new</span></label>
+            <input class="form-input" id="f-spouse-work" placeholder="e.g. Remote / Buckhead" />
+          </div>
+
+          <p class="form-section-title">🏠 Home & Financial</p>
+
+          <div class="form-field">
+            <label class="form-label">Budget ($)</label>
+            <input class="form-input" id="f-budget" placeholder="750000" type="number" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Lead Status</label>
+            <div class="status-options">
+              <button class="status-option selected" onclick="selectStatus(this,'hot')"><span class="pill pill-hot">Hot</span></button>
+              <button class="status-option" onclick="selectStatus(this,'warm')"><span class="pill pill-warm">Warm</span></button>
+              <button class="status-option" onclick="selectStatus(this,'cold')"><span class="pill pill-cold">Cold</span></button>
+              <button class="status-option" onclick="selectStatus(this,'nurturing')"><span class="pill pill-nurturing">Nurturing</span></button>
+              <button class="status-option" onclick="selectStatus(this,'post-close')"><span class="pill pill-post-close">Post-Close</span></button>
+              <button class="status-option" onclick="selectStatus(this,'other')"><span class="pill pill-other">Other</span></button>
+            </div>
+          </div>
+
+          <div class="form-field full">
+            <label class="form-label">Home Preferences <span class="new-badge">new</span></label>
+            <textarea class="form-textarea" id="f-home-pref" rows="3" placeholder="e.g. 4BR, 3BA, large backyard, top-rated school district, near Buckhead or Sandy Springs…"></textarea>
+          </div>
+
+          <div class="form-field full">
+            <label class="form-label">Notes</label>
+            <textarea class="form-textarea" id="f-notes" rows="3" placeholder="Any additional context…"></textarea>
+          </div>
+
+        </div>
+        <div class="form-actions">
+          <button class="btn-ghost" onclick="closeAddModal()">Cancel</button>
+          <button class="btn-primary" onclick="saveLead()">Save Lead</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Data ──
+let selectedStatus = 'hot'
+let currentFilter = 'all'
+let selectedLeadId = null
+
+const LEADS = [
+  {
+    id: 1,
+    lead_name: 'Sarah Mitchell',
+    lead_phone: '+1 (404) 555-0182',
+    lead_email: 'sarah.mitchell@gmail.com',
+    lead_other_emails: 'sarah.m@lawfirm.com',
+    lead_spouse_name: 'Tom Mitchell',
+    lead_spouse_phone: '+1 (404) 555-0193',
+    lead_spouse_email: 'tom.mitchell@gmail.com',
+    lead_children_info: '2 kids, ages 6 and 9',
+    lead_work_location: 'Midtown Atlanta',
+    lead_spouse_work_location: 'Remote',
+    lead_budget: 850000,
+    lead_status: 'hot',
+    lead_home_preferences: '4BR minimum, 3BA, large backyard, top-rated school district (Fulton County preferred), open to Sandy Springs or Buckhead. No HOA preferred.',
+    lead_notes: 'Met at Buckhead open house on Saturday. Very motivated, pre-approved at $850K. Tom works remotely so commute not a factor for him.',
+    lead_ai_summary: "Sarah Mitchell and her husband Tom are actively searching for a 4-bedroom home with a large backyard in the Buckhead or Sandy Springs area, with a strong preference for top-rated schools. With a confirmed budget of $850,000 and pre-approval in hand, they're a hot lead. Tom works remotely, giving them flexibility on location.",
+    created_at: '2026-06-14T10:00:00Z',
+  },
+  {
+    id: 2,
+    lead_name: 'Kevin Park',
+    lead_phone: '+1 (678) 555-0241',
+    lead_email: 'kevin.park@gmail.com',
+    lead_other_emails: null,
+    lead_spouse_name: 'Jane Park',
+    lead_spouse_phone: null,
+    lead_spouse_email: 'jane.park@gmail.com',
+    lead_children_info: null,
+    lead_work_location: 'Downtown Atlanta',
+    lead_spouse_work_location: 'Decatur',
+    lead_budget: 1100000,
+    lead_status: 'hot',
+    lead_home_preferences: 'Open to 3BR with basement or 4BR. Wants a modern kitchen, home office space. Prefers Intown neighborhoods — Virginia-Highland, Morningside, or Druid Hills.',
+    lead_notes: 'Looking for a big house. Open to a 3 bedroom with a basement.',
+    lead_ai_summary: "Kevin Park is looking for a high-end home in Intown Atlanta with a budget of $1,100,000. He prefers 3-4 bedrooms with a modern kitchen and home office. He and his wife Jane commute to Downtown Atlanta and Decatur respectively, making Intown neighborhoods ideal.",
+    created_at: '2026-06-14T11:00:00Z',
+  },
+  {
+    id: 3,
+    lead_name: 'Cleo Watkins',
+    lead_phone: '+1 (770) 555-0374',
+    lead_email: 'cleo@watkinsfamily.com',
+    lead_other_emails: 'cleo.watkins@work.com',
+    lead_spouse_name: 'Adam Watkins',
+    lead_spouse_phone: '+1 (770) 555-0385',
+    lead_spouse_email: null,
+    lead_children_info: '3 kids, ages 3, 7, and 11',
+    lead_work_location: 'Alpharetta',
+    lead_spouse_work_location: 'Canton',
+    lead_budget: 1300000,
+    lead_status: 'warm',
+    lead_home_preferences: 'Must-have: 5BR, 4BA, 3-car garage, large fenced yard for kids. Top school district essential. Interested in Dawsonville, Canton, or Milton area. New construction preferred.',
+    lead_notes: 'Large family, needs a lot of space. Long commutes acceptable for the right house.',
+    lead_ai_summary: "Cleo Watkins and her husband Adam are looking for a large family home with 5 bedrooms and a 3-car garage, ideally new construction in the Milton, Canton, or Dawsonville area. With three kids and a $1.3M budget, they prioritize school districts and yard space.",
+    created_at: '2026-06-13T09:00:00Z',
+  },
+  {
+    id: 4,
+    lead_name: 'Marcus Webb',
+    lead_phone: null,
+    lead_email: 'marcus.webb@email.com',
+    lead_other_emails: null,
+    lead_spouse_name: null,
+    lead_spouse_phone: null,
+    lead_spouse_email: null,
+    lead_children_info: null,
+    lead_work_location: 'Buckhead',
+    lead_spouse_work_location: null,
+    lead_budget: 450000,
+    lead_status: 'cold',
+    lead_home_preferences: '2BR condo or townhome. Walkable neighborhood, close to restaurants and nightlife. Prefers Midtown or Old Fourth Ward.',
+    lead_notes: 'Single professional, not in a rush. Reached out via website form.',
+    lead_ai_summary: "Marcus Webb is a single professional looking for a 2-bedroom condo or townhome in a walkable Intown Atlanta neighborhood, with a budget of $450,000. He's not in a rush — cold lead for now but worth nurturing.",
+    created_at: '2026-06-10T14:00:00Z',
+  },
+]
+
+let filteredLeads = [...LEADS]
+
+// ── Helpers ──
+function initials(name) {
+  if (!name) return '?'
+  return name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase()
+}
+function fmtBudget(v) {
+  if (!v) return null
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v)
+}
+function fmtDate(ts) {
+  return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+function pillClass(s) {
+  return { hot:'pill-hot', warm:'pill-warm', cold:'pill-cold', nurturing:'pill-nurturing', 'post-close':'pill-post-close', other:'pill-other' }[s] || 'pill-other'
+}
+
+// ── Render list ──
+function renderList() {
+  const container = document.getElementById('lead-cards')
+  container.innerHTML = ''
+  filteredLeads.forEach(lead => {
+    const card = document.createElement('button')
+    card.className = 'lead-card' + (lead.id === selectedLeadId ? ' selected' : '')
+    card.onclick = () => selectLead(lead.id)
+    card.innerHTML = `
+      <div class="avatar">${initials(lead.lead_name)}</div>
+      <div class="lead-info">
+        <div class="lead-top">
+          <span class="lead-name-text">${lead.lead_name}</span>
+          <span class="pill ${pillClass(lead.lead_status)}">${lead.lead_status}</span>
+        </div>
+        <div class="lead-meta">
+          ${lead.lead_spouse_name ? `<span class="chip">+ ${lead.lead_spouse_name}</span>` : ''}
+          ${lead.lead_budget ? `<span class="chip budget">${fmtBudget(lead.lead_budget)}</span>` : ''}
+          <span class="meta-date">${fmtDate(lead.created_at)}</span>
+        </div>
+        ${lead.lead_ai_summary ? `<p class="lead-summary-text">${lead.lead_ai_summary}</p>` : ''}
+      </div>
+      <svg class="chevron" viewBox="0 0 20 20" fill="none"><path d="M7 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    `
+    container.appendChild(card)
+  })
+}
+
+// ── Select lead ──
+function selectLead(id) {
+  selectedLeadId = id
+  renderList()
+  const lead = LEADS.find(l => l.id === id)
+  if (!lead) return
+  const panel = document.getElementById('detail-panel')
+  panel.innerHTML = `
+    <div class="detail-header">
+      <div class="detail-avatar">${initials(lead.lead_name)}</div>
+      <div class="detail-title">
+        <h2 class="detail-name">${lead.lead_name}</h2>
+        <span class="pill ${pillClass(lead.lead_status)}">${lead.lead_status}</span>
+      </div>
+      <button class="update-btn">
+        <svg viewBox="0 0 20 20" fill="none" width="13" height="13"><path d="M13.586 3.586a2 2 0 112.828 2.828L8 14.828 4 16l1.172-4L13.586 3.586z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Update
+      </button>
+      <button class="close-btn" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="detail-body">
+
+      ${lead.lead_ai_summary ? `
+      <div class="summary-card">
+        <p class="summary-label">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          AI Summary
+        </p>
+        <p class="summary-text">${lead.lead_ai_summary}</p>
+      </div>` : ''}
+
+      ${lead.lead_home_preferences ? `
+      <section>
+        <h3 class="section-heading">🏠 Home Preferences <span class="new-badge">new</span></h3>
+        <div class="home-pref-block">${lead.lead_home_preferences}</div>
+      </section>` : ''}
+
+      <section>
+        <h3 class="section-heading">👤 Contact Information</h3>
+        <div class="fields-grid">
+          <div class="field"><p class="field-label">Lead Name</p><p class="field-value">${lead.lead_name || '—'}</p></div>
+          <div class="field"><p class="field-label">Phone <span class="new-badge">new</span></p><p class="field-value ${lead.lead_phone ? '' : 'empty'}">${lead.lead_phone || '—'}</p></div>
+          <div class="field"><p class="field-label">Email</p><p class="field-value ${lead.lead_email ? '' : 'empty'}">${lead.lead_email || '—'}</p></div>
+          <div class="field"><p class="field-label">Other Emails <span class="new-badge">new</span></p><p class="field-value ${lead.lead_other_emails ? '' : 'empty'}">${lead.lead_other_emails || '—'}</p></div>
+        </div>
+      </section>
+
+      <section>
+        <h3 class="section-heading">👫 Spouse / Partner</h3>
+        <div class="fields-grid">
+          <div class="field"><p class="field-label">Name</p><p class="field-value ${lead.lead_spouse_name ? '' : 'empty'}">${lead.lead_spouse_name || '—'}</p></div>
+          <div class="field"><p class="field-label">Phone <span class="new-badge">new</span></p><p class="field-value ${lead.lead_spouse_phone ? '' : 'empty'}">${lead.lead_spouse_phone || '—'}</p></div>
+          <div class="field"><p class="field-label">Email <span class="new-badge">new</span></p><p class="field-value ${lead.lead_spouse_email ? '' : 'empty'}">${lead.lead_spouse_email || '—'}</p></div>
+          <div class="field"><p class="field-label">Children</p><p class="field-value ${lead.lead_children_info ? '' : 'empty'}">${lead.lead_children_info || '—'}</p></div>
+        </div>
+      </section>
+
+      <section>
+        <h3 class="section-heading">💼 Work <span class="new-badge">new</span></h3>
+        <div class="fields-grid">
+          <div class="field"><p class="field-label">Lead Work Location</p><p class="field-value ${lead.lead_work_location ? '' : 'empty'}">${lead.lead_work_location || '—'}</p></div>
+          <div class="field"><p class="field-label">Spouse Work Location</p><p class="field-value ${lead.lead_spouse_work_location ? '' : 'empty'}">${lead.lead_spouse_work_location || '—'}</p></div>
+        </div>
+      </section>
+
+      <section>
+        <h3 class="section-heading">💰 Financial</h3>
+        <div class="fields-grid">
+          <div class="field"><p class="field-label">Budget</p><p class="field-value">${fmtBudget(lead.lead_budget) || '—'}</p></div>
+          <div class="field"><p class="field-label">Status</p><p class="field-value"><span class="pill ${pillClass(lead.lead_status)}">${lead.lead_status}</span></p></div>
+        </div>
+      </section>
+
+      <section>
+        <h3 class="section-heading">📝 Notes</h3>
+        <div class="notes-block">${lead.lead_notes || '<span style="color:var(--text-muted);font-style:italic">No notes yet.</span>'}</div>
+      </section>
+
+      <section>
+        <h3 class="section-heading">🔖 Meta</h3>
+        <div class="fields-grid">
+          <div class="field"><p class="field-label">Lead ID</p><p class="field-value" style="font-family:monospace;font-size:0.8rem;color:var(--text-secondary)">${lead.id}</p></div>
+          <div class="field"><p class="field-label">Added On</p><p class="field-value">${fmtDate(lead.created_at)}</p></div>
+        </div>
+      </section>
+
+    </div>
+  `
+}
+
+function closeDetail() {
+  selectedLeadId = null
+  renderList()
+  document.getElementById('detail-panel').innerHTML = `
+    <div class="empty-detail">
+      <div style="font-size:2rem">👤</div>
+      <h3>No lead selected</h3>
+      <p>Click a lead from the list to view their details.</p>
+    </div>`
+}
+
+// ── Filter ──
+function filterLeads(status) {
+  currentFilter = status
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'))
+  event.currentTarget.classList.add('active')
+  filteredLeads = status === 'all' ? [...LEADS] : LEADS.filter(l => l.lead_status === status)
+  const labels = { all: 'All Leads', hot: 'Hot', warm: 'Warm', cold: 'Cold', nurturing: 'Nurturing', 'post-close': 'Post-Close', other: 'Other' }
+  document.getElementById('page-title').textContent = labels[status] || status
+  document.getElementById('page-count').textContent = filteredLeads.length + ' lead' + (filteredLeads.length !== 1 ? 's' : '')
+  renderList()
+}
+
+function searchLeads(q) {
+  const base = currentFilter === 'all' ? LEADS : LEADS.filter(l => l.lead_status === currentFilter)
+  filteredLeads = !q ? base : base.filter(l =>
+    l.lead_name?.toLowerCase().includes(q.toLowerCase()) ||
+    l.lead_spouse_name?.toLowerCase().includes(q.toLowerCase())
+  )
+  renderList()
+}
+
+// ── Modal ──
+function openAddModal() {
+  document.getElementById('add-modal').style.display = 'flex'
+  document.getElementById('quick-add-view').style.display = 'block'
+  document.getElementById('draft-form-view').style.display = 'none'
+  document.getElementById('quick-text').value = ''
+  switchTab('quick')
+}
+function closeAddModal() {
+  document.getElementById('add-modal').style.display = 'none'
+}
+function backdropClick(e) {
+  if (e.target === e.currentTarget) closeAddModal()
+}
+function switchTab(tab) {
+  document.getElementById('tab-quick').classList.toggle('active', tab === 'quick')
+  document.getElementById('tab-manual').classList.toggle('active', tab === 'manual')
+  if (tab === 'manual') {
+    document.getElementById('quick-add-view').style.display = 'none'
+    document.getElementById('draft-form-view').style.display = 'block'
+    document.getElementById('back-link').style.display = 'none'
+    clearForm()
+  } else {
+    document.getElementById('quick-add-view').style.display = 'block'
+    document.getElementById('draft-form-view').style.display = 'none'
+  }
+}
+function backToQuick() {
+  document.getElementById('quick-add-view').style.display = 'block'
+  document.getElementById('draft-form-view').style.display = 'none'
+}
+function clearForm() {
+  ['f-name','f-phone','f-email','f-other-emails','f-spouse','f-spouse-phone','f-spouse-email','f-children','f-work','f-spouse-work','f-budget','f-home-pref','f-notes'].forEach(id => {
+    const el = document.getElementById(id)
+    if (el) { el.value = ''; el.classList.remove('extracted') }
+  })
+}
+
+// ── Mock Extract ──
+const MOCK_EXTRACTED = {
+  'f-name': 'Sarah Mitchell',
+  'f-phone': '+1 (404) 555-0182',
+  'f-email': 'sarah.mitchell@gmail.com',
+  'f-other-emails': 'sarah.m@lawfirm.com',
+  'f-spouse': 'Tom Mitchell',
+  'f-spouse-phone': '',
+  'f-spouse-email': 'tom.mitchell@gmail.com',
+  'f-children': '2 kids, ages 6 and 9',
+  'f-work': 'Midtown Atlanta',
+  'f-spouse-work': 'Remote',
+  'f-budget': '850000',
+  'f-home-pref': '4BR minimum, 3BA, large backyard, top-rated schools (Fulton County preferred), open to Sandy Springs or Buckhead. No HOA preferred.',
+  'f-notes': 'Met at Buckhead open house. Very motivated, pre-approved at $850K.',
+}
+
+function extractFields() {
+  const text = document.getElementById('quick-text').value.trim()
+  if (!text) return
+  const btn = event.currentTarget
+  btn.textContent = 'Extracting…'
+  btn.disabled = true
+  setTimeout(() => {
+    btn.textContent = 'Extract Fields →'
+    btn.disabled = false
+    document.getElementById('quick-add-view').style.display = 'none'
+    document.getElementById('draft-form-view').style.display = 'block'
+    document.getElementById('back-link').style.display = 'inline-block'
+    clearForm()
+    Object.entries(MOCK_EXTRACTED).forEach(([id, val]) => {
+      const el = document.getElementById(id)
+      if (el && val) { el.value = val; el.classList.add('extracted') }
+    })
+    // auto-select Hot status
+    document.querySelectorAll('.status-option').forEach(b => b.classList.remove('selected'))
+    document.querySelector('.status-option:first-child').classList.add('selected')
+  }, 1200)
+}
+
+function selectStatus(btn, status) {
+  selectedStatus = status
+  document.querySelectorAll('.status-option').forEach(b => b.classList.remove('selected'))
+  btn.classList.add('selected')
+}
+
+function saveLead() {
+  const name = document.getElementById('f-name').value.trim()
+  if (!name) { alert('Lead name is required.'); return }
+  const btn = event.currentTarget
+  btn.textContent = 'Saving…'
+  btn.disabled = true
+  setTimeout(() => {
+    btn.textContent = 'Save Lead'
+    btn.disabled = false
+    const newLead = {
+      id: Date.now(),
+      lead_name: name,
+      lead_phone: document.getElementById('f-phone').value || null,
+      lead_email: document.getElementById('f-email').value || null,
+      lead_other_emails: document.getElementById('f-other-emails').value || null,
+      lead_spouse_name: document.getElementById('f-spouse').value || null,
+      lead_spouse_phone: document.getElementById('f-spouse-phone').value || null,
+      lead_spouse_email: document.getElementById('f-spouse-email').value || null,
+      lead_children_info: document.getElementById('f-children').value || null,
+      lead_work_location: document.getElementById('f-work').value || null,
+      lead_spouse_work_location: document.getElementById('f-spouse-work').value || null,
+      lead_budget: parseFloat(document.getElementById('f-budget').value) || null,
+      lead_status: selectedStatus || 'other',
+      lead_home_preferences: document.getElementById('f-home-pref').value || null,
+      lead_notes: document.getElementById('f-notes').value || null,
+      lead_ai_summary: `${name} is a new lead added via the reCRM prototype. AI summary will be generated after save.`,
+      created_at: new Date().toISOString(),
+    }
+    LEADS.unshift(newLead)
+    filteredLeads = currentFilter === 'all' ? [...LEADS] : LEADS.filter(l => l.lead_status === currentFilter)
+    renderList()
+    closeAddModal()
+    selectLead(newLead.id)
+  }, 900)
+}
+
+// ── Init ──
+renderList()
+</script>
+</body>
+</html>
