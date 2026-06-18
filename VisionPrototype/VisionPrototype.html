@@ -283,6 +283,10 @@
             <label class="form-label">Children</label>
             <input class="form-input" id="f-children" placeholder="e.g. 2 kids, ages 4 and 7" />
           </div>
+          <div class="form-field">
+            <label class="form-label">Pets <span class="new-badge">new</span></label>
+            <input class="form-input" id="f-pets" placeholder="e.g. 2 dogs, 1 cat" />
+          </div>
 
           <p class="form-section-title">💼 Work</p>
 
@@ -519,6 +523,7 @@ function selectLead(id) {
           <div class="field"><p class="field-label">Phone <span class="new-badge">new</span></p><p class="field-value ${lead.lead_spouse_phone ? '' : 'empty'}">${lead.lead_spouse_phone || '—'}</p></div>
           <div class="field"><p class="field-label">Email <span class="new-badge">new</span></p><p class="field-value ${lead.lead_spouse_email ? '' : 'empty'}">${lead.lead_spouse_email || '—'}</p></div>
           <div class="field"><p class="field-label">Children</p><p class="field-value ${lead.lead_children_info ? '' : 'empty'}">${lead.lead_children_info || '—'}</p></div>
+          <div class="field"><p class="field-label">Pets <span class="new-badge">new</span></p><p class="field-value ${lead.lead_pets ? '' : 'empty'}">${lead.lead_pets || '—'}</p></div>
         </div>
       </section>
 
@@ -619,7 +624,7 @@ function backToQuick() {
   document.getElementById('draft-form-view').style.display = 'none'
 }
 function clearForm() {
-  ['f-name','f-phone','f-email','f-other-emails','f-spouse','f-spouse-phone','f-spouse-email','f-children','f-work','f-spouse-work','f-budget','f-home-pref','f-notes'].forEach(id => {
+  ['f-name','f-phone','f-email','f-other-emails','f-spouse','f-spouse-phone','f-spouse-email','f-children','f-pets','f-work','f-spouse-work','f-budget','f-home-pref','f-notes'].forEach(id => {
     const el = document.getElementById(id)
     if (el) { el.value = ''; el.classList.remove('extracted') }
   })
@@ -690,6 +695,7 @@ function saveLead() {
       lead_spouse_phone: document.getElementById('f-spouse-phone').value || null,
       lead_spouse_email: document.getElementById('f-spouse-email').value || null,
       lead_children_info: document.getElementById('f-children').value || null,
+      lead_pets: document.getElementById('f-pets').value || null,
       lead_work_location: document.getElementById('f-work').value || null,
       lead_spouse_work_location: document.getElementById('f-spouse-work').value || null,
       lead_budget: parseFloat(document.getElementById('f-budget').value) || null,
