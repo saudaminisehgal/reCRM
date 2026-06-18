@@ -516,16 +516,20 @@ function selectLead(id) {
         </div>
       </section>
 
+      ${[
+          lead.lead_spouse_name, lead.lead_spouse_phone, lead.lead_spouse_email,
+          lead.lead_children_info, lead.lead_pets
+        ].some(Boolean) ? `
       <section>
         <h3 class="section-heading">👫 Spouse & Family</h3>
         <div class="fields-grid">
-          <div class="field"><p class="field-label">Name</p><p class="field-value ${lead.lead_spouse_name ? '' : 'empty'}">${lead.lead_spouse_name || '—'}</p></div>
-          <div class="field"><p class="field-label">Phone <span class="new-badge">new</span></p><p class="field-value ${lead.lead_spouse_phone ? '' : 'empty'}">${lead.lead_spouse_phone || '—'}</p></div>
-          <div class="field"><p class="field-label">Email <span class="new-badge">new</span></p><p class="field-value ${lead.lead_spouse_email ? '' : 'empty'}">${lead.lead_spouse_email || '—'}</p></div>
-          <div class="field"><p class="field-label">Children</p><p class="field-value ${lead.lead_children_info ? '' : 'empty'}">${lead.lead_children_info || '—'}</p></div>
-          <div class="field"><p class="field-label">Pets <span class="new-badge">new</span></p><p class="field-value ${lead.lead_pets ? '' : 'empty'}">${lead.lead_pets || '—'}</p></div>
+          ${lead.lead_spouse_name ? `<div class="field"><p class="field-label">Name</p><p class="field-value">${lead.lead_spouse_name}</p></div>` : ''}
+          ${lead.lead_spouse_phone ? `<div class="field"><p class="field-label">Phone <span class="new-badge">new</span></p><p class="field-value">${lead.lead_spouse_phone}</p></div>` : ''}
+          ${lead.lead_spouse_email ? `<div class="field"><p class="field-label">Email <span class="new-badge">new</span></p><p class="field-value">${lead.lead_spouse_email}</p></div>` : ''}
+          ${lead.lead_children_info ? `<div class="field"><p class="field-label">Children</p><p class="field-value">${lead.lead_children_info}</p></div>` : ''}
+          ${lead.lead_pets ? `<div class="field"><p class="field-label">Pets <span class="new-badge">new</span></p><p class="field-value">${lead.lead_pets}</p></div>` : ''}
         </div>
-      </section>
+      </section>` : ''}
 
       <section>
         <h3 class="section-heading">💼 Work <span class="new-badge">new</span></h3>
