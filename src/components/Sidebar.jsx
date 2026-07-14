@@ -13,8 +13,8 @@ export default function Sidebar({ activeFilter, onFilterChange, statusCounts, to
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
-        <div className="brand-icon">RE</div>
-        <span className="brand-name">reCRM</span>
+        <div className="brand-icon">D</div>
+        <span className="brand-name">Dossier</span>
       </div>
 
       <nav className="sidebar-nav">
