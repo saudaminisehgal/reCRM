@@ -329,6 +329,19 @@ export default function LeadDetail({ lead, onClose, onEmailUpdated, onNotesUpdat
             <Field label="Spouse / Partner" value={lead.lead_spouse_name} />
             <Field label="Children" value={lead.lead_children_info} />
             <EmailField value={lead.lead_email} onSave={onEmailUpdated} />
+            <Field label="Lead Occupation" value={lead.lead_occupation} />
+            <Field label="Spouse Occupation" value={lead.lead_spouse_occupation} />
+            <Field label="Lead Work Location" value={lead.lead_work_location} />
+            <Field label="Spouse Work Location" value={lead.lead_spouse_work_location} />
+          </div>
+        </section>
+
+        <section className="detail-section">
+          <h3 className="section-heading">Property Preferences</h3>
+          <div className="fields-grid">
+            <Field label="Bedrooms" value={lead.lead_bedrooms != null ? String(lead.lead_bedrooms) : null} />
+            <Field label="Bathrooms" value={lead.lead_bathrooms != null ? String(lead.lead_bathrooms) : null} />
+            <Field label="Neighborhoods / Areas" value={lead.lead_neighborhoods} />
           </div>
         </section>
 

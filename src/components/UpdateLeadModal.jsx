@@ -15,13 +15,20 @@ function clean(val) {
 
 function fromLead(lead) {
   return {
-    lead_name:          clean(lead.lead_name),
-    lead_spouse_name:   clean(lead.lead_spouse_name),
-    lead_children_info: clean(lead.lead_children_info),
-    lead_email:         clean(lead.lead_email),
-    lead_budget:        lead.lead_budget != null ? String(lead.lead_budget) : '',
-    lead_status:        lead.lead_status || 'cold',
-    lead_notes:         clean(lead.lead_notes),
+    lead_name:                clean(lead.lead_name),
+    lead_spouse_name:         clean(lead.lead_spouse_name),
+    lead_children_info:       clean(lead.lead_children_info),
+    lead_email:               clean(lead.lead_email),
+    lead_budget:              lead.lead_budget != null ? String(lead.lead_budget) : '',
+    lead_status:              lead.lead_status || 'cold',
+    lead_notes:               clean(lead.lead_notes),
+    lead_occupation:          clean(lead.lead_occupation),
+    lead_spouse_occupation:   clean(lead.lead_spouse_occupation),
+    lead_bedrooms:            lead.lead_bedrooms != null ? String(lead.lead_bedrooms) : '',
+    lead_bathrooms:           lead.lead_bathrooms != null ? String(lead.lead_bathrooms) : '',
+    lead_neighborhoods:       clean(lead.lead_neighborhoods),
+    lead_work_location:       clean(lead.lead_work_location),
+    lead_spouse_work_location: clean(lead.lead_spouse_work_location),
   }
 }
 
@@ -88,16 +95,27 @@ export default function UpdateLeadModal({ lead, onClose, onSaved }) {
       }
       // Merge extracted fields over existing lead values — keep existing if nothing extracted
       setQuickForm({
-        lead_name:          clean(raw.lead_name)          || clean(lead.lead_name),
-        lead_spouse_name:   clean(raw.lead_spouse_name)   || clean(lead.lead_spouse_name),
-        lead_children_info: clean(raw.lead_children_info) || clean(lead.lead_children_info),
-        lead_email:         clean(raw.lead_email)         || clean(lead.lead_email),
-        lead_budget:        raw.lead_budget != null && raw.lead_budget !== 'null'
-                              ? String(raw.lead_budget)
-                              : lead.lead_budget ? String(lead.lead_budget) : '',
-        lead_status:        raw.lead_status && raw.lead_status !== 'null'
-                              ? raw.lead_status : (lead.lead_status || 'cold'),
-        lead_notes:         clean(raw.lead_notes) || clean(lead.lead_notes),
+        lead_name:                clean(raw.lead_name)                || clean(lead.lead_name),
+        lead_spouse_name:         clean(raw.lead_spouse_name)         || clean(lead.lead_spouse_name),
+        lead_children_info:       clean(raw.lead_children_info)       || clean(lead.lead_children_info),
+        lead_email:               clean(raw.lead_email)               || clean(lead.lead_email),
+        lead_budget:              raw.lead_budget != null && raw.lead_budget !== 'null'
+                                    ? String(raw.lead_budget)
+                                    : lead.lead_budget ? String(lead.lead_budget) : '',
+        lead_status:              raw.lead_status && raw.lead_status !== 'null'
+                                    ? raw.lead_status : (lead.lead_status || 'cold'),
+        lead_notes:               clean(raw.lead_notes)               || clean(lead.lead_notes),
+        lead_occupation:          clean(raw.lead_occupation)          || clean(lead.lead_occupation),
+        lead_spouse_occupation:   clean(raw.lead_spouse_occupation)   || clean(lead.lead_spouse_occupation),
+        lead_bedrooms:            raw.lead_bedrooms != null && raw.lead_bedrooms !== 'null'
+                                    ? String(raw.lead_bedrooms)
+                                    : lead.lead_bedrooms ? String(lead.lead_bedrooms) : '',
+        lead_bathrooms:           raw.lead_bathrooms != null && raw.lead_bathrooms !== 'null'
+                                    ? String(raw.lead_bathrooms)
+                                    : lead.lead_bathrooms ? String(lead.lead_bathrooms) : '',
+        lead_neighborhoods:       clean(raw.lead_neighborhoods)       || clean(lead.lead_neighborhoods),
+        lead_work_location:       clean(raw.lead_work_location)       || clean(lead.lead_work_location),
+        lead_spouse_work_location: clean(raw.lead_spouse_work_location) || clean(lead.lead_spouse_work_location),
       })
     } catch (err) {
       setExtractError(err.message || 'Failed to extract. Try again.')
@@ -113,16 +131,23 @@ export default function UpdateLeadModal({ lead, onClose, onSaved }) {
     setSaveError(null)
     try {
       const payload = [{
-        id:                 lead.id,
-        intent:             'update',
-        notes_mode:         'append',
-        lead_name:          form.lead_name          || null,
-        lead_spouse_name:   form.lead_spouse_name   || null,
-        lead_children_info: form.lead_children_info || null,
-        lead_email:         form.lead_email         || null,
-        lead_budget:        form.lead_budget ? parseFloat(form.lead_budget) : null,
-        lead_status:        form.lead_status        || 'other',
-        lead_notes:         form.lead_notes         || null,
+        id:                       lead.id,
+        intent:                   'update',
+        notes_mode:               'append',
+        lead_name:                form.lead_name                || null,
+        lead_spouse_name:         form.lead_spouse_name         || null,
+        lead_children_info:       form.lead_children_info       || null,
+        lead_email:               form.lead_email               || null,
+        lead_budget:              form.lead_budget ? parseFloat(form.lead_budget) : null,
+        lead_status:              form.lead_status              || 'other',
+        lead_notes:               form.lead_notes               || null,
+        lead_occupation:          form.lead_occupation          || null,
+        lead_spouse_occupation:   form.lead_spouse_occupation   || null,
+        lead_bedrooms:            form.lead_bedrooms ? parseInt(form.lead_bedrooms) : null,
+        lead_bathrooms:           form.lead_bathrooms ? parseFloat(form.lead_bathrooms) : null,
+        lead_neighborhoods:       form.lead_neighborhoods       || null,
+        lead_work_location:       form.lead_work_location       || null,
+        lead_spouse_work_location: form.lead_spouse_work_location || null,
       }]
       const res = await fetch(WEBHOOK_SAVE, {
         method: 'POST',
@@ -343,6 +368,48 @@ export default function UpdateLeadModal({ lead, onClose, onSaved }) {
                   <label className="form-label">Budget ($)</label>
                   <input className="form-input" type="number" value={activeForm.lead_budget}
                     onChange={e => setField('lead_budget', e.target.value)} placeholder="750000" />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Lead Occupation</label>
+                  <input className="form-input" value={activeForm.lead_occupation}
+                    onChange={e => setField('lead_occupation', e.target.value)} placeholder="e.g. Software Engineer" />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Spouse Occupation</label>
+                  <input className="form-input" value={activeForm.lead_spouse_occupation}
+                    onChange={e => setField('lead_spouse_occupation', e.target.value)} placeholder="e.g. Teacher" />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Lead Work Location</label>
+                  <input className="form-input" value={activeForm.lead_work_location}
+                    onChange={e => setField('lead_work_location', e.target.value)} placeholder="e.g. Midtown Atlanta" />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Spouse Work Location</label>
+                  <input className="form-input" value={activeForm.lead_spouse_work_location}
+                    onChange={e => setField('lead_spouse_work_location', e.target.value)} placeholder="e.g. Buckhead" />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Bedrooms</label>
+                  <input className="form-input" type="number" value={activeForm.lead_bedrooms}
+                    onChange={e => setField('lead_bedrooms', e.target.value)} placeholder="e.g. 3" />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Bathrooms</label>
+                  <input className="form-input" type="number" value={activeForm.lead_bathrooms}
+                    onChange={e => setField('lead_bathrooms', e.target.value)} placeholder="e.g. 2" />
+                </div>
+
+                <div className="form-field form-field--full">
+                  <label className="form-label">Neighborhoods / Areas / Zip Codes</label>
+                  <input className="form-input" value={activeForm.lead_neighborhoods}
+                    onChange={e => setField('lead_neighborhoods', e.target.value)} placeholder="e.g. Sandy Springs, Buckhead, 30328" />
                 </div>
 
                 <div className="form-field form-field--full">
