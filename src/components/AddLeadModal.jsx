@@ -308,78 +308,102 @@ export default function AddLeadModal({ onClose, onSaved, onDraftChange }) {
               )}
 
               <div className="form-grid">
+                {/* Lead Name — always shown */}
                 <div className="form-field">
                   <label className="form-label">Lead Name</label>
                   <input className="form-input" value={form.lead_name}
                     onChange={e => setField('lead_name', e.target.value)} placeholder="Full name" />
                 </div>
 
+                {(tab === 'manual' || form.lead_spouse_name) && (
                 <div className="form-field">
                   <label className="form-label">Spouse / Partner</label>
                   <input className="form-input" value={form.lead_spouse_name}
                     onChange={e => setField('lead_spouse_name', e.target.value)} placeholder="Partner name" />
                 </div>
+                )}
 
+                {(tab === 'manual' || form.lead_children_info) && (
                 <div className="form-field">
                   <label className="form-label">Children</label>
                   <input className="form-input" value={form.lead_children_info}
                     onChange={e => setField('lead_children_info', e.target.value)} placeholder="e.g. 2 kids, ages 4 and 7" />
                 </div>
+                )}
 
+                {(tab === 'manual' || form.lead_email) && (
                 <div className="form-field">
                   <label className="form-label">Email</label>
                   <input className="form-input" type="email" value={form.lead_email}
                     onChange={e => setField('lead_email', e.target.value)} placeholder="e.g. jane@gmail.com" />
                 </div>
+                )}
 
+                {(tab === 'manual' || form.lead_budget) && (
                 <div className="form-field">
                   <label className="form-label">Budget ($)</label>
                   <input className="form-input" type="number" value={form.lead_budget}
                     onChange={e => setField('lead_budget', e.target.value)} placeholder="750000" />
                 </div>
+                )}
 
+                {(tab === 'manual' || form.lead_occupation) && (
                 <div className="form-field">
                   <label className="form-label">Lead Occupation</label>
                   <input className="form-input" value={form.lead_occupation}
                     onChange={e => setField('lead_occupation', e.target.value)} placeholder="e.g. Software Engineer" />
                 </div>
+                )}
 
+                {(tab === 'manual' || form.lead_spouse_occupation) && (
                 <div className="form-field">
                   <label className="form-label">Spouse Occupation</label>
                   <input className="form-input" value={form.lead_spouse_occupation}
                     onChange={e => setField('lead_spouse_occupation', e.target.value)} placeholder="e.g. Teacher" />
                 </div>
+                )}
 
+                {(tab === 'manual' || form.lead_work_location) && (
                 <div className="form-field">
                   <label className="form-label">Lead Work Location</label>
                   <input className="form-input" value={form.lead_work_location}
                     onChange={e => setField('lead_work_location', e.target.value)} placeholder="e.g. Midtown Atlanta" />
                 </div>
+                )}
 
+                {(tab === 'manual' || form.lead_spouse_work_location) && (
                 <div className="form-field">
                   <label className="form-label">Spouse Work Location</label>
                   <input className="form-input" value={form.lead_spouse_work_location}
                     onChange={e => setField('lead_spouse_work_location', e.target.value)} placeholder="e.g. Buckhead" />
                 </div>
+                )}
 
+                {(tab === 'manual' || form.lead_bedrooms) && (
                 <div className="form-field">
                   <label className="form-label">Bedrooms</label>
                   <input className="form-input" type="number" value={form.lead_bedrooms}
                     onChange={e => setField('lead_bedrooms', e.target.value)} placeholder="e.g. 3" />
                 </div>
+                )}
 
+                {(tab === 'manual' || form.lead_bathrooms) && (
                 <div className="form-field">
                   <label className="form-label">Bathrooms</label>
                   <input className="form-input" type="number" value={form.lead_bathrooms}
                     onChange={e => setField('lead_bathrooms', e.target.value)} placeholder="e.g. 2" />
                 </div>
+                )}
 
+                {(tab === 'manual' || form.lead_neighborhoods) && (
                 <div className="form-field form-field--full">
                   <label className="form-label">Neighborhoods / Areas / Zip Codes</label>
                   <input className="form-input" value={form.lead_neighborhoods}
                     onChange={e => setField('lead_neighborhoods', e.target.value)} placeholder="e.g. Sandy Springs, Buckhead, 30328" />
                 </div>
+                )}
 
+                {/* Lead Status — always shown */}
                 <div className="form-field form-field--full">
                   <label className="form-label">Lead Status</label>
                   <div className="status-options">
@@ -393,12 +417,14 @@ export default function AddLeadModal({ onClose, onSaved, onDraftChange }) {
                   </div>
                 </div>
 
+                {(tab === 'manual' || form.lead_notes) && (
                 <div className="form-field form-field--full">
                   <label className="form-label">Notes</label>
                   <textarea className="form-textarea" value={form.lead_notes}
                     onChange={e => setField('lead_notes', e.target.value)}
                     placeholder="Any additional context…" rows={3} />
                 </div>
+                )}
               </div>
 
               {saving && (
