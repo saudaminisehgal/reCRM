@@ -341,7 +341,7 @@ export default function LeadDetail({ lead, onClose, onEmailUpdated, onNotesUpdat
           <div className="fields-grid">
             <Field label="Bedrooms" value={lead.lead_bedrooms != null ? String(lead.lead_bedrooms) : null} />
             <Field label="Bathrooms" value={lead.lead_bathrooms != null ? String(lead.lead_bathrooms) : null} />
-            <Field label="Neighborhoods / Areas" value={lead.lead_neighborhoods} />
+            <Field label="Buy Box" value={lead.lead_neighborhoods} />
           </div>
         </section>
 

@@ -397,7 +397,7 @@ export default function AddLeadModal({ onClose, onSaved, onDraftChange }) {
 
                 {(tab === 'manual' || form.lead_neighborhoods) && (
                 <div className="form-field form-field--full">
-                  <label className="form-label">Neighborhoods / Areas / Zip Codes</label>
+                  <label className="form-label">Buy Box</label>
                   <input className="form-input" value={form.lead_neighborhoods}
                     onChange={e => setField('lead_neighborhoods', e.target.value)} placeholder="e.g. Sandy Springs, Buckhead, 30328" />
                 </div>

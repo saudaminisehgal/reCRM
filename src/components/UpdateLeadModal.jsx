@@ -407,7 +407,7 @@ export default function UpdateLeadModal({ lead, onClose, onSaved }) {
                 </div>
 
                 <div className="form-field form-field--full">
-                  <label className="form-label">Neighborhoods / Areas / Zip Codes</label>
+                  <label className="form-label">Buy Box</label>
                   <input className="form-input" value={activeForm.lead_neighborhoods}
                     onChange={e => setField('lead_neighborhoods', e.target.value)} placeholder="e.g. Sandy Springs, Buckhead, 30328" />
                 </div>
